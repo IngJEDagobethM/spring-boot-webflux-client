@@ -22,11 +22,12 @@ import java.util.Map;
 @Service
 public class ProductoService implements ProductoRepository {
 
-    private final WebClient client;
+    //private final WebClient client;
+    private final WebClient.Builder client;
 
     @Override
     public Flux<Producto> findAll() {
-        return client.get()
+        return client.build().get()
                 .accept(MediaType.APPLICATION_JSON)
                 .exchangeToFlux(clientResponse -> clientResponse.bodyToFlux(Producto.class));
     }
@@ -35,7 +36,7 @@ public class ProductoService implements ProductoRepository {
     public Mono<Producto> findById(String id) {
         Map<String, Object> requestParams = new HashMap<>();
         requestParams.put("id", id);
-        return client.get().uri("/{id}", requestParams)
+        return client.build().get().uri("/{id}", requestParams)
                 .accept(MediaType.APPLICATION_JSON)
                 .retrieve()
                 .bodyToMono(Producto.class);
@@ -43,7 +44,7 @@ public class ProductoService implements ProductoRepository {
 
     @Override
     public Mono<Producto> save(Producto producto) {
-        return client.post()
+        return client.build().post()
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
                 // Se puede importar estáticamente el BodyInserters
@@ -53,7 +54,7 @@ public class ProductoService implements ProductoRepository {
 
     @Override
     public Mono<Producto> update(Producto producto, String id) {
-        return client.put()
+        return client.build().put()
                 .uri("/{id}", Collections.singletonMap("id", id))
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -64,7 +65,7 @@ public class ProductoService implements ProductoRepository {
 
     @Override
     public Mono<Void> delete(String id) {
-        return client.delete()
+        return client.build().delete()
                 .uri("/{id}", Collections.singletonMap("id", id))
                 //.exchangeToMono(ClientResponse::releaseBody)
                 .retrieve()
@@ -81,7 +82,7 @@ public class ProductoService implements ProductoRepository {
                     h.setContentDispositionFormData("file", file.filename());
                 });
 
-        return client.post()
+        return client.build().post()
                 .uri("/upload/{id}", Collections.singletonMap("id", id))
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(parts.build())
